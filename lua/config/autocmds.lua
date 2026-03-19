@@ -26,10 +26,12 @@ autocmd({ "FocusGained", "BufEnter", "CursorHold" }, {
     command = "checktime",
 })
 
--- Go format on save
-autocmd("BufWritePre", {
-    pattern = "*.go",
+-- Show diagnostics in a float on hover
+autocmd("CursorHold", {
+    desc = "Show diagnostics float on hover",
+    group = vim.api.nvim_create_augroup("diagnostic-float", { clear = true }),
     callback = function()
-        vim.lsp.buf.format()
+        vim.diagnostic.open_float(nil, { focusable = false })
     end,
 })
+

@@ -48,4 +48,31 @@ return {
             })
         end,
     },
+
+    -- Find and replace (IDE-like)
+    {
+        "MagicDuck/grug-far.nvim",
+        keys = {
+            { "<leader>sr", function() require("grug-far").open() end, desc = "Search and Replace" },
+            { "<leader>sr", function() require("grug-far").with_visual_selection() end, mode = "v", desc = "Search selection" },
+            { "<leader>sR", function() require("grug-far").open({ prefills = { paths = vim.fn.expand("%") } }) end, desc = "Replace in file" },
+        },
+        config = function()
+            require("grug-far").setup()
+        end,
+    },
+
+    -- Smooth scrolling
+    {
+        "karb94/neoscroll.nvim",
+        keys = {
+            { "<C-d>", function() require("neoscroll").ctrl_d({ duration = 200, easing = "sine" }) end, desc = "Smooth half page down" },
+            { "<C-u>", function() require("neoscroll").ctrl_u({ duration = 200, easing = "sine" }) end, desc = "Smooth half page up" },
+        },
+        config = function()
+            require("neoscroll").setup({
+                mappings = {}, -- disable default mappings, we define our own
+            })
+        end,
+    },
 }

@@ -9,10 +9,10 @@ keymap("n", "<leader>q", "<cmd>q<CR>", { desc = "Quit" })
 keymap("n", "<leader>Q", "<cmd>qa<CR>", { desc = "Quit all" })
 keymap("n", "<Esc>", "<cmd>nohlsearch<CR>", { desc = "Clear search highlight" })
 
--- Better window navigation
+-- Window navigation (C-hjkl)
 keymap("n", "<C-h>", "<C-w>h", { desc = "Move to left window" })
-keymap("n", "<C-j>", "<C-w>j", { desc = "Move to bottom window" })
-keymap("n", "<C-k>", "<C-w>k", { desc = "Move to top window" })
+keymap("n", "<C-j>", "<C-w>j", { desc = "Move to below window" })
+keymap("n", "<C-k>", "<C-w>k", { desc = "Move to above window" })
 keymap("n", "<C-l>", "<C-w>l", { desc = "Move to right window" })
 
 -- Window resize
@@ -30,6 +30,8 @@ keymap("n", "<leader>se", "<C-w>=", { desc = "Equal splits" })
 -- Buffer navigation
 keymap("n", "<Tab>", "<cmd>bnext<CR>", { desc = "Next buffer" })
 keymap("n", "<S-Tab>", "<cmd>bprevious<CR>", { desc = "Previous buffer" })
+keymap("n", "<leader><Tab>", "<cmd>b#<CR>", { desc = "Last visited buffer" })
+keymap("n", "<leader>bp", "<cmd>BufferLinePick<CR>", { desc = "Pick buffer" })
 keymap("n", "<leader>bd", "<cmd>bdelete<CR>", { desc = "Delete buffer" })
 keymap("n", "<leader>bD", "<cmd>%bdelete|edit#|bdelete#<CR>", { desc = "Delete other buffers" })
 
@@ -49,8 +51,6 @@ keymap("v", ">", ">gv", { desc = "Indent right" })
 keymap("v", "p", '"_dP', { desc = "Paste without yanking" })
 
 -- Keep cursor centered
-keymap("n", "<C-d>", "<C-d>zz", { desc = "Half page down (centered)" })
-keymap("n", "<C-u>", "<C-u>zz", { desc = "Half page up (centered)" })
 keymap("n", "n", "nzzzv", { desc = "Next search (centered)" })
 keymap("n", "N", "Nzzzv", { desc = "Prev search (centered)" })
 

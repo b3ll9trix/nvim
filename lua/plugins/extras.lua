@@ -1,4 +1,4 @@
--- Extra utilities: terminal, smooth scroll, trouble
+-- Extra utilities: terminal, trouble
 return {
     -- Terminal
     {
@@ -6,7 +6,7 @@ return {
         version = "*",
         keys = {
             { "<C-\\>", "<cmd>ToggleTerm<CR>", desc = "Toggle terminal" },
-            { "<leader>tf", "<cmd>ToggleTerm direction=float<CR>", desc = "Float terminal" },
+            { "<leader>Tf", "<cmd>ToggleTerm direction=float<CR>", desc = "Float terminal" },
             { "<leader>th", "<cmd>ToggleTerm direction=horizontal size=15<CR>", desc = "Horizontal terminal" },
             { "<leader>tv", "<cmd>ToggleTerm direction=vertical size=80<CR>", desc = "Vertical terminal" },
         },
@@ -41,15 +41,6 @@ return {
             end
 
             vim.cmd("autocmd! TermOpen term://* lua set_terminal_keymaps()")
-        end,
-    },
-
-    -- Smooth scrolling
-    {
-        "karb94/neoscroll.nvim",
-        event = "VeryLazy",
-        config = function()
-            require("neoscroll").setup()
         end,
     },
 

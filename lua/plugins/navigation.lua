@@ -1,8 +1,9 @@
--- Navigation: File explorer, fuzzy finder, harpoon
+-- Navigation: File explorer, fuzzy finder
 return {
     -- File explorer
     {
         "nvim-tree/nvim-tree.lua",
+        lazy = false,
         dependencies = { "nvim-tree/nvim-web-devicons" },
         keys = {
             { "<leader>n", "<cmd>NvimTreeToggle<CR>", desc = "Toggle file tree" },
@@ -10,7 +11,29 @@ return {
             { "<leader>nf", "<cmd>NvimTreeFindFile<CR>", desc = "Find current file" },
         },
         config = function()
+            local function on_attach(bufnr)
+                local api = require("nvim-tree.api")
+                -- Apply default mappings first
+                api.config.mappings.default_on_attach(bufnr)
+                local opts = { buffer = bufnr, silent = true, noremap = true }
+
+                -- Grep inside selected folder
+                vim.keymap.set("n", "<leader>fg", function()
+                    local node = api.tree.get_node_under_cursor()
+                    local path = node.type == "directory" and node.absolute_path or vim.fn.fnamemodify(node.absolute_path, ":h")
+                    require("telescope.builtin").live_grep({ search_dirs = { path } })
+                end, vim.tbl_extend("force", opts, { desc = "Grep in folder" }))
+
+                -- Find files inside selected folder
+                vim.keymap.set("n", "<leader>ff", function()
+                    local node = api.tree.get_node_under_cursor()
+                    local path = node.type == "directory" and node.absolute_path or vim.fn.fnamemodify(node.absolute_path, ":h")
+                    require("telescope.builtin").find_files({ search_dirs = { path } })
+                end, vim.tbl_extend("force", opts, { desc = "Find files in folder" }))
+            end
+
             require("nvim-tree").setup({
+                on_attach = on_attach,
                 view = {
                     width = 35,
                 },
@@ -18,15 +41,16 @@ return {
                     enable = true,
                     show_on_dirs = true,
                     icons = {
-                        hint = "󰌵",
-                        info = "",
-                        warning = "",
-                        error = "",
+                        hint = "💡",
+                        info = "ℹ️",
+                        warning = "⚠️",
+                        error = "❌",
                     },
                 },
                 renderer = {
                     group_empty = true,
                     icons = {
+                        diagnostics_placement = "before",
                         show = {
                             file = true,
                             folder = true,
@@ -50,6 +74,17 @@ return {
                 },
             })
         end,
+    },
+
+    -- Quick jump (flash)
+    {
+        "folke/flash.nvim",
+        event = "VeryLazy",
+        keys = {
+            { "s", mode = { "n", "x", "o" }, function() require("flash").jump() end, desc = "Flash jump" },
+            { "S", mode = { "n", "x", "o" }, function() require("flash").treesitter() end, desc = "Flash treesitter" },
+        },
+        opts = {},
     },
 
     -- Fuzzy finder
@@ -91,6 +126,7 @@ return {
             local actions = require("telescope.actions")
             telescope.setup({
                 defaults = {
+                    path_display = { "filename_first" },
                     file_ignore_patterns = { "node_modules", ".git/", "target/", "vendor/" },
                     mappings = {
                         i = {
@@ -118,26 +154,6 @@ return {
                 },
             })
             telescope.load_extension("fzf")
-        end,
-    },
-
-    -- Harpoon (quick file switching)
-    {
-        "ThePrimeagen/harpoon",
-        branch = "harpoon2",
-        dependencies = { "nvim-lua/plenary.nvim" },
-        keys = {
-            { "<leader>ha", function() require("harpoon"):list():add() end, desc = "Harpoon add file" },
-            { "<leader>hh", function() require("harpoon").ui:toggle_quick_menu(require("harpoon"):list()) end, desc = "Harpoon menu" },
-            { "<leader>h1", function() require("harpoon"):list():select(1) end, desc = "Harpoon file 1" },
-            { "<leader>h2", function() require("harpoon"):list():select(2) end, desc = "Harpoon file 2" },
-            { "<leader>h3", function() require("harpoon"):list():select(3) end, desc = "Harpoon file 3" },
-            { "<leader>h4", function() require("harpoon"):list():select(4) end, desc = "Harpoon file 4" },
-            { "<leader>hp", function() require("harpoon"):list():prev() end, desc = "Harpoon prev" },
-            { "<leader>hn", function() require("harpoon"):list():next() end, desc = "Harpoon next" },
-        },
-        config = function()
-            require("harpoon"):setup()
         end,
     },
 }

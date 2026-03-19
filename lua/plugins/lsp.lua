@@ -24,87 +24,32 @@ return {
             "williamboman/mason.nvim",
             "williamboman/mason-lspconfig.nvim",
             "hrsh7th/cmp-nvim-lsp",
-            -- Rust enhancements
-            {
-                "mrcjkb/rustaceanvim",
-                version = "^5",
-                lazy = false,
-            },
+            "ray-x/lsp_signature.nvim",
         },
         config = function()
-            local capabilities = require("cmp_nvim_lsp").default_capabilities()
+            local lsp = require("config.lsp")
+            local capabilities = lsp.capabilities()
+            local on_attach = lsp.on_attach
 
             -- Diagnostic configuration
             vim.diagnostic.config({
-                virtual_text = {
-                    prefix = "●",
-                    source = "if_many",
-                },
+                virtual_text = false,
                 float = {
                     border = "rounded",
                     source = true,
                 },
-                signs = true,
+                signs = {
+                    text = {
+                        [vim.diagnostic.severity.ERROR] = "❌",
+                        [vim.diagnostic.severity.WARN] = "⚠️",
+                        [vim.diagnostic.severity.HINT] = "💡",
+                        [vim.diagnostic.severity.INFO] = "ℹ️",
+                    },
+                },
                 underline = true,
                 update_in_insert = false,
                 severity_sort = true,
             })
-
-            -- Diagnostic signs
-            local signs = { Error = " ", Warn = " ", Hint = "󰌵 ", Info = " " }
-            for type, icon in pairs(signs) do
-                local hl = "DiagnosticSign" .. type
-                vim.fn.sign_define(hl, { text = icon, texthl = hl, numhl = hl })
-            end
-
-            -- On attach function for LSP keymaps and features
-            local on_attach = function(client, bufnr)
-                local opts = { buffer = bufnr, silent = true }
-
-                -- Navigation
-                vim.keymap.set("n", "gd", vim.lsp.buf.definition, vim.tbl_extend("force", opts, { desc = "Go to definition" }))
-                vim.keymap.set("n", "gD", vim.lsp.buf.declaration, vim.tbl_extend("force", opts, { desc = "Go to declaration" }))
-                vim.keymap.set("n", "gi", vim.lsp.buf.implementation, vim.tbl_extend("force", opts, { desc = "Go to implementation" }))
-                vim.keymap.set("n", "gr", vim.lsp.buf.references, vim.tbl_extend("force", opts, { desc = "Find references" }))
-                vim.keymap.set("n", "gt", vim.lsp.buf.type_definition, vim.tbl_extend("force", opts, { desc = "Go to type definition" }))
-
-                -- Documentation
-                vim.keymap.set("n", "K", vim.lsp.buf.hover, vim.tbl_extend("force", opts, { desc = "Hover documentation" }))
-                vim.keymap.set("n", "<C-k>", vim.lsp.buf.signature_help, vim.tbl_extend("force", opts, { desc = "Signature help" }))
-                vim.keymap.set("i", "<C-k>", vim.lsp.buf.signature_help, vim.tbl_extend("force", opts, { desc = "Signature help" }))
-
-                -- Workspace
-                vim.keymap.set("n", "<leader>ws", vim.lsp.buf.workspace_symbol, vim.tbl_extend("force", opts, { desc = "Workspace symbols" }))
-                vim.keymap.set("n", "<leader>wa", vim.lsp.buf.add_workspace_folder, vim.tbl_extend("force", opts, { desc = "Add workspace folder" }))
-                vim.keymap.set("n", "<leader>wr", vim.lsp.buf.remove_workspace_folder, vim.tbl_extend("force", opts, { desc = "Remove workspace folder" }))
-
-                -- Code actions
-                vim.keymap.set("n", "<leader>ca", vim.lsp.buf.code_action, vim.tbl_extend("force", opts, { desc = "Code action" }))
-                vim.keymap.set("v", "<leader>ca", vim.lsp.buf.code_action, vim.tbl_extend("force", opts, { desc = "Code action" }))
-                vim.keymap.set("n", "<leader>rn", vim.lsp.buf.rename, vim.tbl_extend("force", opts, { desc = "Rename symbol" }))
-
-                -- Diagnostics
-                vim.keymap.set("n", "<leader>ds", vim.diagnostic.open_float, vim.tbl_extend("force", opts, { desc = "Show diagnostics" }))
-                vim.keymap.set("n", "[d", vim.diagnostic.goto_prev, vim.tbl_extend("force", opts, { desc = "Previous diagnostic" }))
-                vim.keymap.set("n", "]d", vim.diagnostic.goto_next, vim.tbl_extend("force", opts, { desc = "Next diagnostic" }))
-                vim.keymap.set("n", "<leader>dl", vim.diagnostic.setloclist, vim.tbl_extend("force", opts, { desc = "Diagnostics to loclist" }))
-
-                -- Enable inlay hints if supported (Neovim 0.10+)
-                if client.supports_method("textDocument/inlayHint") then
-                    vim.lsp.inlay_hint.enable(true, { bufnr = bufnr })
-                end
-
-                -- Code lens support
-                if client.supports_method("textDocument/codeLens") then
-                    vim.lsp.codelens.refresh()
-                    vim.api.nvim_create_autocmd({ "BufEnter", "InsertLeave" }, {
-                        buffer = bufnr,
-                        callback = function()
-                            vim.lsp.codelens.refresh()
-                        end,
-                    })
-                end
-            end
 
             -- Mason-lspconfig setup
             require("mason-lspconfig").setup({
@@ -112,7 +57,15 @@ return {
                     "gopls",
                     "lua_ls",
                 },
-                automatic_installation = true,
+                automatic_installation = {
+                    exclude = { "rust_analyzer" },
+                },
+                handlers = {
+                    -- No-op default: we configure servers manually via vim.lsp.config
+                    function(server_name) end,
+                    -- Explicitly skip rust_analyzer (handled by rustaceanvim)
+                    ["rust_analyzer"] = function() end,
+                },
             })
 
             -- Configure LSPs using vim.lsp.config (Neovim 0.11+)
@@ -173,43 +126,61 @@ return {
             -- Enable the configured LSPs
             vim.lsp.enable({ "gopls", "lua_ls" })
 
-            -- Rustaceanvim handles rust_analyzer automatically
-            -- Configure it via vim.g.rustaceanvim
-            vim.g.rustaceanvim = {
-                tools = {
-                    hover_actions = {
-                        auto_focus = true,
+        end,
+    },
+
+    -- Rust LSP (rustaceanvim manages rust-analyzer)
+    {
+        "mrcjkb/rustaceanvim",
+        version = "^5",
+        lazy = false,
+        init = function()
+            -- Use a function so config is resolved lazily when a Rust file opens
+            vim.g.rustaceanvim = function()
+                local lsp = require("config.lsp")
+                return {
+                    tools = {
+                        hover_actions = {
+                            auto_focus = true,
+                        },
                     },
-                },
-                server = {
-                    on_attach = on_attach,
-                    capabilities = capabilities,
-                    default_settings = {
-                        ["rust-analyzer"] = {
-                            checkOnSave = true,
-                            check = {
-                                command = "clippy",
-                            },
-                            cargo = {
-                                allFeatures = true,
-                                loadOutDirsFromCheck = true,
-                            },
-                            procMacro = {
-                                enable = true,
-                            },
-                            inlayHints = {
-                                bindingModeHints = { enable = true },
-                                chainingHints = { enable = true },
-                                closingBraceHints = { enable = true },
-                                closureReturnTypeHints = { enable = "always" },
-                                lifetimeElisionHints = { enable = "always" },
-                                parameterHints = { enable = true },
-                                typeHints = { enable = true },
+                    server = {
+                        on_attach = lsp.on_attach,
+                        capabilities = lsp.capabilities(),
+                        default_settings = {
+                            ["rust-analyzer"] = {
+                                checkOnSave = true,
+                                check = {
+                                    command = "clippy",
+                                },
+                                cachePriming = {
+                                    enable = false,
+                                },
+                                completion = {
+                                    autoimport = { enable = true },
+                                    postfix = { enable = true },
+                                },
+                                cargo = {
+                                    allFeatures = true,
+                                    loadOutDirsFromCheck = true,
+                                },
+                                procMacro = {
+                                    enable = true,
+                                },
+                                inlayHints = {
+                                    bindingModeHints = { enable = true },
+                                    chainingHints = { enable = true },
+                                    closingBraceHints = { enable = true },
+                                    closureReturnTypeHints = { enable = "always" },
+                                    lifetimeElisionHints = { enable = "always" },
+                                    parameterHints = { enable = true },
+                                    typeHints = { enable = true },
+                                },
                             },
                         },
                     },
-                },
-            }
+                }
+            end
         end,
     },
 
