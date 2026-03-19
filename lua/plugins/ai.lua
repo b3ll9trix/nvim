@@ -1,5 +1,6 @@
--- AI assistants: Claude Code integration + Windsurf (Codeium) inline completions
+-- AI assistants: Avante (chat/agent) + Windsurf (Codeium) inline completions
 return {
+    -- Inline completions (Codeium)
     {
         "Exafunction/windsurf.vim",
         event = "BufEnter",
@@ -26,36 +27,46 @@ return {
                 return vim.fn["codeium#Clear"]()
             end, { expr = true, silent = true })
 
-            -- Normal mode keymaps
-            vim.keymap.set("n", "<leader>at", "<cmd>Codeium Toggle<CR>", { desc = "Toggle Codeium" })
-            vim.keymap.set("n", "<leader>ad", "<cmd>Codeium Disable<CR>", { desc = "Disable Codeium" })
-            vim.keymap.set("n", "<leader>ae", "<cmd>Codeium Enable<CR>", { desc = "Enable Codeium" })
-            vim.keymap.set("n", "<leader>ai", "<cmd>Codeium Chat<CR>", { desc = "Codeium chat" })
+            -- Normal mode keymaps (<leader>i = inline completions)
+            vim.keymap.set("n", "<leader>it", "<cmd>Codeium Toggle<CR>", { desc = "Toggle Codeium" })
+            vim.keymap.set("n", "<leader>id", "<cmd>Codeium Disable<CR>", { desc = "Disable Codeium" })
+            vim.keymap.set("n", "<leader>ie", "<cmd>Codeium Enable<CR>", { desc = "Enable Codeium" })
+            vim.keymap.set("n", "<leader>ic", "<cmd>Codeium Chat<CR>", { desc = "Codeium chat" })
         end,
     },
+
+    -- Chat/agent (Avante)
     {
-        "coder/claudecode.nvim",
-        dependencies = { "folke/snacks.nvim" },
-        keys = {
-            { "<leader>ac", "<cmd>ClaudeCode<CR>",            desc = "Toggle Claude" },
-            { "<leader>af", "<cmd>ClaudeCodeFocus<CR>",       desc = "Focus Claude" },
-            { "<leader>ar", "<cmd>ClaudeCode --resume<CR>",   desc = "Resume conversation" },
-            { "<leader>as", "<cmd>ClaudeCodeSend<CR>",        mode = "v",                    desc = "Send to Claude" },
-            { "<leader>am", "<cmd>ClaudeCodeSelectModel<CR>", desc = "Select model" },
-            { "<leader>ab", "<cmd>ClaudeCodeAdd %<CR>",       desc = "Add buffer to context" },
+        "yetone/avante.nvim",
+        event = "VeryLazy",
+        version = false,
+        build = "make",
+        opts = {
+            provider = "claude",
+            mode = "agentic",
+            providers = {
+                claude = {
+                    endpoint = "https://api.anthropic.com",
+                    model = "claude-sonnet-4-20250514",
+                    timeout = 30000,
+                    extra_request_body = {
+                        temperature = 0.75,
+                        max_tokens = 20480,
+                    },
+                },
+            },
         },
-        config = function()
-            require("claudecode").setup({
-                terminal = {
-                    split_side = "right",
-                    split_width_percentage = 0.30,
-                    provider = "snacks",
+        dependencies = {
+            "nvim-lua/plenary.nvim",
+            "MunifTanjim/nui.nvim",
+            "nvim-tree/nvim-web-devicons",
+            {
+                "MeanderingProgrammer/render-markdown.nvim",
+                opts = {
+                    file_types = { "markdown", "Avante" },
                 },
-                diff_opts = {
-                    auto_close_on_accept = true,
-                    vertical_split = true,
-                },
-            })
-        end,
+                ft = { "markdown", "Avante" },
+            },
+        },
     },
 }
