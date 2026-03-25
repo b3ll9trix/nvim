@@ -18,6 +18,10 @@ return {
     {
         "nvim-tree/nvim-web-devicons",
         lazy = true,
+        opts = {
+            default = true,
+            color_icons = true,
+        },
     },
 
     -- Status line
@@ -27,7 +31,7 @@ return {
         config = function()
             require("lualine").setup({
                 options = {
-                    theme = "catppuccin",
+                    theme = "catppuccin-mocha",
                 },
                 sections = {
                     lualine_c = {
@@ -64,6 +68,52 @@ return {
         config = function()
             require("dashboard").setup({
                 theme = "hyper",
+                config = {
+                    week_header = {
+                        enable = true,
+                    },
+                    shortcut = {
+                        {
+                            desc = " Find File",
+                            group = "DashboardShortCut",
+                            action = "Telescope find_files",
+                            key = "f",
+                        },
+                        {
+                            desc = " Recent Files",
+                            group = "DashboardShortCut",
+                            action = "Telescope oldfiles",
+                            key = "r",
+                        },
+                        {
+                            desc = " Grep",
+                            group = "DashboardShortCut",
+                            action = "Telescope live_grep",
+                            key = "g",
+                        },
+                        {
+                            desc = "󰒲 Lazy",
+                            group = "DashboardShortCut",
+                            action = "Lazy",
+                            key = "l",
+                        },
+                        {
+                            desc = " Quit",
+                            group = "DashboardShortCut",
+                            action = "qa",
+                            key = "q",
+                        },
+                    },
+                    project = {
+                        enable = true,
+                        limit = 5,
+                        action = "Telescope find_files cwd=",
+                    },
+                    mru = {
+                        limit = 8,
+                    },
+                    footer = {},
+                },
             })
         end,
     },
