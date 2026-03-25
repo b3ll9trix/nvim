@@ -2,15 +2,13 @@
 return {
     -- Color scheme
     {
-        "catppuccin/nvim",
-        name = "catppuccin",
+        "rebelot/kanagawa.nvim",
         priority = 1000,
         config = function()
-            require("catppuccin").setup({
-                flavour = "mocha",
-                transparent_background = false,
+            require("kanagawa").setup({
+                transparent = false,
             })
-            vim.cmd.colorscheme("catppuccin")
+            vim.cmd.colorscheme("kanagawa-wave")
         end,
     },
 
@@ -31,7 +29,7 @@ return {
         config = function()
             require("lualine").setup({
                 options = {
-                    theme = "catppuccin-mocha",
+                    theme = "kanagawa",
                 },
                 sections = {
                     lualine_c = {
@@ -49,6 +47,13 @@ return {
         config = function()
             require("bufferline").setup({})
         end,
+    },
+
+    -- Breadcrumbs (winbar with LSP context)
+    {
+        "Bekaboo/dropbar.nvim",
+        event = { "BufReadPost", "BufNewFile" },
+        opts = {},
     },
 
     -- Which-key (keybinding hints)
