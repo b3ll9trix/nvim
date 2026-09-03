@@ -8,8 +8,26 @@ return {
             require("kanagawa").setup({
                 transparent = false,
             })
-            vim.cmd.colorscheme("kanagawa-wave")
+            vim.cmd.colorscheme("kanagawa-dragon")
         end,
+    },
+
+    -- Previous color schemes (kept installed so you can switch back by
+    -- pointing colorscheme + lualine theme at one of these)
+    {
+        "kepano/flexoki-neovim",
+        name = "flexoki",
+        lazy = true,
+    },
+    {
+        "folke/tokyonight.nvim",
+        lazy = true,
+        opts = { style = "night", transparent = false },
+    },
+    {
+        "scottmckendry/cyberdream.nvim",
+        lazy = true,
+        opts = { variant = "default", transparent = false },
     },
 
     -- Icons
