@@ -150,14 +150,14 @@
 
 | Key | Action |
 |-----|--------|
-| `<leader>tn` | Run nearest test |
-| `<leader>tf` | Run file tests |
-| `<leader>ts` | Toggle test summary |
-| `<leader>to` | Show test output |
-| `<leader>tO` | Toggle output panel |
-| `<leader>tS` | Stop test |
-| `<leader>tw` | Toggle watch mode |
-| `<leader>td` | Debug nearest test |
+| `<leader>Tn` | Run nearest test |
+| `<leader>Tf` | Run file tests |
+| `<leader>Ts` | Toggle test summary |
+| `<leader>To` | Show test output |
+| `<leader>TO` | Toggle output panel |
+| `<leader>TS` | Stop test |
+| `<leader>Tw` | Toggle watch mode |
+| `<leader>Td` | Debug nearest test |
 | `[T` / `]T` | Prev/Next failed test |
 
 ---
